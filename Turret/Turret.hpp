@@ -9,9 +9,10 @@
 class Enemy;
 class PlayScene;
 
-class Turret : public Engine::Sprite {
+class Turret :  public Engine::Sprite {
 protected:
     int price;
+    int hp;
     float coolDown;
     float reload = 0;
     float rotateRadian = 2 * ALLEGRO_PI;
@@ -25,7 +26,7 @@ public:
     bool Enabled = true;
     bool Preview = false;
     Enemy *Target = nullptr;
-    Turret(std::string imgBase, std::string imgTurret, float x, float y, float radius, int price, float coolDown);
+    Turret(std::string imgBase, std::string imgTurret, float x, float y, float radius, int price, float coolDown, int hp);
     void Update(float deltaTime) override;
     void Draw() const override;
     int GetPrice() const;

@@ -69,6 +69,7 @@ namespace Engine {
         /// Delegate the update event to all visible objects.
         /// </summary>
         /// <param name="deltaTime">Time elapsed since last update, can be used to calculate value changes.</param>
+        void ClearObjects();
         void Update(float deltaTime) override;
         /// <summary>
         /// Draw to window display.

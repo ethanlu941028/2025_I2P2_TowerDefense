@@ -11,14 +11,19 @@
 #include "Enemy/Enemy.hpp"
 #include "Enemy/SoldierEnemy.hpp"
 #include "Enemy/TankEnemy.hpp"
+#include "Enemy/PlaneEnemy.h"
 #include "Engine/AudioHelper.hpp"
 #include "Engine/GameEngine.hpp"
 #include "Engine/Group.hpp"
 #include "Engine/LOG.hpp"
 #include "Engine/Resources.hpp"
 #include "PlayScene.hpp"
+
+#include "Enemy/NewEnemy.hpp"
 #include "Turret/LaserTurret.hpp"
 #include "Turret/MachineGunTurret.hpp"
+#include "Turret/NewTurret.hpp"
+#include "Turret/FreezeTurret.hpp"
 #include "Turret/TurretButton.hpp"
 #include "UI/Animation/DirtyEffect.hpp"
 #include "UI/Animation/Plane.hpp"
@@ -37,10 +42,15 @@ const int PlayScene::BlockSize = 64;
 const float PlayScene::DangerTime = 7.61;
 const Engine::Point PlayScene::SpawnGridPoint = Engine::Point(-1, 0);
 const Engine::Point PlayScene::EndGridPoint = Engine::Point(MapWidth, MapHeight - 1);
-const std::vector<int> PlayScene::code = {
+const std::vector<int> PlayScene::code1 = {
     ALLEGRO_KEY_UP, ALLEGRO_KEY_UP, ALLEGRO_KEY_DOWN, ALLEGRO_KEY_DOWN,
     ALLEGRO_KEY_LEFT, ALLEGRO_KEY_RIGHT, ALLEGRO_KEY_LEFT, ALLEGRO_KEY_RIGHT,
-    ALLEGRO_KEY_B, ALLEGRO_KEY_A, ALLEGRO_KEYMOD_SHIFT, ALLEGRO_KEY_ENTER
+    ALLEGRO_KEY_B, ALLEGRO_KEY_A, ALLEGRO_KEY_LSHIFT, ALLEGRO_KEY_ENTER
+};
+const std::vector<int> PlayScene::code2 = {
+    ALLEGRO_KEY_UP, ALLEGRO_KEY_UP, ALLEGRO_KEY_DOWN, ALLEGRO_KEY_DOWN,
+    ALLEGRO_KEY_LEFT, ALLEGRO_KEY_RIGHT, ALLEGRO_KEY_LEFT, ALLEGRO_KEY_RIGHT,
+    ALLEGRO_KEY_B, ALLEGRO_KEY_A, ALLEGRO_KEY_RSHIFT, ALLEGRO_KEY_ENTER
 };
 Engine::Point PlayScene::GetClientSize() {
     return Engine::Point(MapWidth * BlockSize, MapHeight * BlockSize);
@@ -135,7 +145,8 @@ void PlayScene::Update(float deltaTime) {
         if (enemyWaveData.empty()) {
             if (EnemyGroup->GetObjects().empty()) {
                 // Free resources.
-                /*delete TileMapGroup;
+                /*
+                delete TileMapGroup;
                 delete GroundEffectGroup;
                 delete DebugIndicatorGroup;
                 delete TowerGroup;
@@ -143,9 +154,9 @@ void PlayScene::Update(float deltaTime) {
                 delete BulletGroup;
                 delete EffectGroup;
                 delete UIGroup;
-                delete imgTarget;*/
-                // Win.
-                Engine::GameEngine::GetInstance().ChangeScene("win-scene");
+                //delete imgTarget;
+                */
+                Engine::GameEngine::GetInstance().ChangeScene("win");
             }
             continue;
         }
@@ -161,9 +172,13 @@ void PlayScene::Update(float deltaTime) {
                 EnemyGroup->AddNewObject(enemy = new SoldierEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
                 break;
             // TODO HACKATHON-3 (2/3): Add your new enemy here.
-            // case 2:
-            //     ...
+            case 2:
+                EnemyGroup->AddNewObject(enemy = new PlaneEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
+                break;
             case 3:
+                EnemyGroup->AddNewObject(enemy = new NewEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
+                break;
+            case 4:
                 EnemyGroup->AddNewObject(enemy = new TankEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
                 break;
             default:
@@ -260,8 +275,13 @@ void PlayScene::OnKeyDown(int keyCode) {
         DebugMode = !DebugMode;
     } else {
         keyStrokes.push_back(keyCode);
-        if (keyStrokes.size() > code.size())
+        if (keyStrokes.size() > code1.size())
             keyStrokes.pop_front();
+
+        if (code1.size() == keyStrokes.size() && (std::equal(code1.begin(), code1.end(), keyStrokes.begin()) || std::equal(code2.begin(), code2.end(), keyStrokes.begin()))) {
+            EarnMoney(10000);
+            AddNewObject(new Plane);
+        }
     }
     if (keyCode == ALLEGRO_KEY_Q) {
         // Hotkey for MachineGunTurret.
@@ -274,9 +294,12 @@ void PlayScene::OnKeyDown(int keyCode) {
         // Hotkey for Speed up.
         SpeedMult = keyCode - ALLEGRO_KEY_0;
     }
+    // HACKATHON-4 (3/3): Check for cheat code and spawn a plane if matche
+
 }
 void PlayScene::Hit() {
     lives--;
+    UILives->Text = "Lives: " + std::to_string(lives);
     if (lives <= 0) {
         Engine::GameEngine::GetInstance().ChangeScene("lose");
     }
@@ -350,11 +373,26 @@ void PlayScene::ConstructUI() {
     // Reference: Class Member Function Pointer and std::bind.
     btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 0));
     UIGroup->AddNewControlObject(btn);
+
     // Button 2
     btn = new TurretButton("play/floor.png", "play/dirt.png",
                            Engine::Sprite("play/tower-base.png", 1370, 136, 0, 0, 0, 0),
                            Engine::Sprite("play/turret-2.png", 1370, 136 - 8, 0, 0, 0, 0), 1370, 136, LaserTurret::Price);
     btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 1));
+    UIGroup->AddNewControlObject(btn);
+
+    // Button 3
+    btn = new TurretButton("play/floor.png", "play/dirt.png",
+                           Engine::Sprite("play/tower-base.png", 1446, 136, 0, 0, 0, 0),
+                           Engine::Sprite("play/NewTurret.png", 1446, 136, 0, 0, 0, 0), 1446, 136, NewTurret::Price);
+    btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 2));
+    UIGroup->AddNewControlObject(btn);
+
+    // Button 4
+    btn = new TurretButton("play/floor.png", "play/dirt.png",
+                           Engine::Sprite("play/tower-base.png", 1522, 136, 0, 0, 0, 0),
+                           Engine::Sprite("play/FreezeTurret.png", 1522, 130, 0, 0, 0, 0), 1522, 136, FreezeTurret::Price);
+    btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 3));
     UIGroup->AddNewControlObject(btn);
 
     int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
@@ -366,14 +404,21 @@ void PlayScene::ConstructUI() {
 }
 
 void PlayScene::UIBtnClicked(int id) {
+    Turret *next_preview = nullptr;
+    if (id == 0 && money >= MachineGunTurret::Price)
+        next_preview = new MachineGunTurret(0, 0);
+    else if (id == 1 && money >= LaserTurret::Price)
+        next_preview = new LaserTurret(0, 0);
+    else if (id == 2 && money >= NewTurret::Price)
+        next_preview = new NewTurret(0, 0);
+    else if (id == 3 && money >= FreezeTurret::Price)
+        next_preview = new FreezeTurret(0, 0);
+    if (!next_preview)
+        return;   // not enough money or invalid turret.
+
     if (preview)
         UIGroup->RemoveObject(preview->GetObjectIterator());
-    if (id == 0 && money >= MachineGunTurret::Price)
-        preview = new MachineGunTurret(0, 0);
-    else if (id == 1 && money >= LaserTurret::Price)
-        preview = new LaserTurret(0, 0);
-    if (!preview)
-        return;
+    preview = next_preview;
     preview->Position = Engine::GameEngine::GetInstance().GetMousePosition();
     preview->Tint = al_map_rgba(255, 255, 255, 200);
     preview->Enabled = false;
@@ -419,12 +464,32 @@ std::vector<std::vector<int>> PlayScene::CalculateBFSDistance() {
         return map;
     que.push(Engine::Point(MapWidth - 1, MapHeight - 1));
     map[MapHeight - 1][MapWidth - 1] = 0;
+
+    int dx[4] = {1, 0, -1, 0};
+    int dy[4] = {0, 1, 0, -1};
+
     while (!que.empty()) {
         Engine::Point p = que.front();
         que.pop();
         // TODO PROJECT-1 (1/1): Implement a BFS starting from the most right-bottom block in the map.
         //               For each step you should assign the corresponding distance to the most right-bottom block.
         //               mapState[y][x] is TILE_DIRT if it is empty.
+
+        int x = p.x;
+        int y = p.y;
+
+        for (int i = 0; i < 4; i++) {
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+
+            if (nx >= 0 && nx < MapWidth && ny >= 0 && ny < MapHeight) {
+                if (map[ny][nx] == -1 && mapState[ny][nx] == TILE_DIRT) {
+                    map[ny][nx] = map[y][x] + 1;
+                    que.push(Engine::Point(nx, ny));
+                }
+            }
+        }
+
     }
     return map;
 }

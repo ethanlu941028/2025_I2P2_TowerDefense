@@ -1,6 +1,8 @@
 #ifndef ISCENE_HPP
 #define ISCENE_HPP
 
+#include <allegro5/events.h>
+
 #include "Group.hpp"
 
 namespace Engine {
@@ -43,6 +45,8 @@ namespace Engine {
         /// Delegate the draw event to all visible objects.
         /// </summary>
         void Draw() const override;
+
+        virtual void HandleEvent(const ALLEGRO_EVENT&){}
     };
 }
 #endif   // ISCENE_HPP

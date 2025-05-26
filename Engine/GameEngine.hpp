@@ -9,6 +9,7 @@
 /// <summary>
 /// All general classes are under this namespace for clarity.
 /// </summary>
+
 namespace Engine {
     class IScene;
     /// <summary>
@@ -39,6 +40,7 @@ namespace Engine {
         const char *icon{};
         // The scene to change to at next update.
         std::string nextScene{};
+
 
         /// <summary>
         /// Initialize allegro5 library. Creates game window & event queue,

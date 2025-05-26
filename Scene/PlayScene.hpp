@@ -40,7 +40,8 @@ public:
     static const float DangerTime;
     static const Engine::Point SpawnGridPoint;
     static const Engine::Point EndGridPoint;
-    static const std::vector<int> code;
+    static const std::vector<int> code1;
+    static const std::vector<int> code2;
     int MapId;
     float ticks;
     float deathCountDown;
@@ -81,6 +82,6 @@ public:
     void UIBtnClicked(int id);
     bool CheckSpaceValid(int x, int y);
     std::vector<std::vector<int>> CalculateBFSDistance();
-    // void ModifyReadMapTiles();
+    //void ModifyReadMapTiles();
 };
 #endif   // PLAYSCENE_HPP

@@ -19,6 +19,10 @@ add_executable(2025_I2P2_TowerDefense
     Bullet/FireBullet.hpp
     Bullet/LaserBullet.cpp
     Bullet/LaserBullet.hpp
+    Bullet/NewBullet.cpp
+    Bullet/NewBullet.hpp
+    Bullet/FreezeBullet.cpp
+    Bullet/FreezeBullet.hpp
 
     # TODO HACKATHON-3 (3/3): Add the new enemy source files here
     Enemy/Enemy.cpp
@@ -27,6 +31,10 @@ add_executable(2025_I2P2_TowerDefense
     Enemy/SoldierEnemy.hpp
     Enemy/TankEnemy.cpp
     Enemy/TankEnemy.hpp
+    Enemy/PlaneEnemy.cpp
+    Enemy/PlaneEnemy.h
+    Enemy/NewEnemy.cpp
+    Enemy/NewEnemy.hpp
 
     Engine/Allegro5Exception.cpp
     Engine/Allegro5Exception.hpp
@@ -64,6 +72,10 @@ add_executable(2025_I2P2_TowerDefense
     Scene/StartScene.h
     Scene/WinScene.cpp
     Scene/WinScene.hpp
+    Scene/SettingsScene.cpp
+    Scene/SettingsScene.hpp
+    Scene/ScoreboardScene.cpp
+    Scene/ScoreboardScene.hpp
 
     Turret/LaserTurret.cpp
     Turret/LaserTurret.hpp
@@ -73,6 +85,10 @@ add_executable(2025_I2P2_TowerDefense
     Turret/Turret.hpp
     Turret/TurretButton.cpp
     Turret/TurretButton.hpp
+    Turret/NewTurret.cpp
+    Turret/NewTurret.hpp
+    Turret/FreezeTurret.cpp
+    Turret/FreezeTurret.hpp
 
     UI/Animation/DirtyEffect.cpp
     UI/Animation/DirtyEffect.hpp
@@ -91,6 +107,20 @@ add_executable(2025_I2P2_TowerDefense
     UI/Component/Slider.hpp
     
     main.cpp
+        Enemy/PlaneEnemy.cpp
+        Enemy/PlaneEnemy.h
+        Scene/ScoreboardScene.cpp
+        Scene/ScoreboardScene.hpp
+        Turret/NewTurret.hpp
+        Turret/NewTurret.cpp
+        Bullet/NewBullet.cpp
+        Bullet/NewBullet.hpp
+        Enemy/NewEnemy.cpp
+        Enemy/NewEnemy.hpp
+        Turret/FreezeTurret.cpp
+        Turret/FreezeTurret.hpp
+        Bullet/FreezeBullet.cpp
+        Bullet/FreezeBullet.hpp
 )
 
 IF (WIN32)

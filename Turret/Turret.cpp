@@ -15,7 +15,7 @@
 PlayScene *Turret::getPlayScene() {
     return dynamic_cast<PlayScene *>(Engine::GameEngine::GetInstance().GetActiveScene());
 }
-Turret::Turret(std::string imgBase, std::string imgTurret, float x, float y, float radius, int price, float coolDown) : Sprite(imgTurret, x, y), price(price), coolDown(coolDown), imgBase(imgBase, x, y) {
+Turret::Turret(std::string imgBase, std::string imgTurret, float x, float y, float radius, int price, float coolDown, int hp) : Sprite(imgTurret, x, y), price(price), coolDown(coolDown), hp(hp), imgBase(imgBase, x, y) {
     CollisionRadius = radius;
 }
 void Turret::Update(float deltaTime) {
@@ -62,7 +62,8 @@ void Turret::Update(float deltaTime) {
         else
             rotation = ((abs(radian) - maxRotateRadian) * originRotation + maxRotateRadian * targetRotation) / radian;
         // Add 90 degrees (PI/2 radian), since we assume the image is oriented upward.
-        Rotation = atan2(rotation.y, rotation.x) + ALLEGRO_PI / 2;
+        if (hp == 20) Rotation = atan2(rotation.y, rotation.x) + ALLEGRO_PI / 64;
+        else Rotation = atan2(rotation.y, rotation.x) + ALLEGRO_PI / 2;
         // Shoot reload.
         reload -= deltaTime;
         if (reload <= 0) {
