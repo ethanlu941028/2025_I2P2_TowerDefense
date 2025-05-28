@@ -11,7 +11,7 @@
 
 class Turret;
 
-FreezeBullet::FreezeBullet(Engine::Point position, Engine::Point forwardDirection, float rotation, Turret *parent) : Bullet("play/bullet-10.png", 1300, 4, position, forwardDirection, rotation - ALLEGRO_PI / 2, parent) {
+FreezeBullet::FreezeBullet(Engine::Point position, Engine::Point forwardDirection, float rotation, Turret *parent) : Bullet("play/bullet-10.png", 1500, 4, position, forwardDirection, rotation - ALLEGRO_PI / 2, parent) {
 }
 void FreezeBullet::OnExplode(Enemy *enemy) {
     std::random_device dev;

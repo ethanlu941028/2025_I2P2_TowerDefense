@@ -62,7 +62,16 @@ void Turret::Update(float deltaTime) {
         else
             rotation = ((abs(radian) - maxRotateRadian) * originRotation + maxRotateRadian * targetRotation) / radian;
         // Add 90 degrees (PI/2 radian), since we assume the image is oriented upward.
-        if (hp == 20) Rotation = atan2(rotation.y, rotation.x) + ALLEGRO_PI / 64;
+        if (hp == 20) {
+            if (dynamic_cast<PlayScene*>(Engine::GameEngine::GetInstance().GetScene("play"))->GetMoney() > 150) {
+                Rotation = atan2(rotation.y, rotation.x) + ALLEGRO_PI / 64;
+                coolDown = 0.001;
+            }
+            else {
+                Rotation = atan2(rotation.y, rotation.x) + ALLEGRO_PI / 2;
+                coolDown = 0.5;
+            }
+        }
         else Rotation = atan2(rotation.y, rotation.x) + ALLEGRO_PI / 2;
         // Shoot reload.
         reload -= deltaTime;

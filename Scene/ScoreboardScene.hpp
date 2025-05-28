@@ -10,6 +10,8 @@
 #include "UI/Component/ImageButton.hpp"
 #include <allegro5/allegro_audio.h>
 
+
+
 struct ScoreEntry {
     std::string name;
     int score;
@@ -31,6 +33,8 @@ private:
 public:
     ScoreboardScene();
     ~ScoreboardScene() override;
+    bool ChangingPage = false;
+
 
     void Initialize() override;
     void Terminate() override;

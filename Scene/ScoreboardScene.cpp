@@ -5,6 +5,8 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <iostream>
+
 
 ScoreboardScene::ScoreboardScene()
     : currentPage(0), entriesPerPage(10) {}
@@ -14,6 +16,7 @@ void ScoreboardScene::Initialize() {
     LoadScoreboard();
     SortEntries();
     bgmInstance = AudioHelper::PlaySample("select.ogg", true, AudioHelper::BGMVolume);
+    ChangingPage = false;
     ShowPage(0);
 }
 
@@ -48,6 +51,7 @@ void ScoreboardScene::SortEntries() {
 void ScoreboardScene::ShowPage(unsigned int page) {
     currentPage = page;
     ClearObjects();
+
     int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
     int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
     int halfW = w / 2;
@@ -56,7 +60,6 @@ void ScoreboardScene::ShowPage(unsigned int page) {
     // Prev button
     auto* prevButton = new Engine::ImageButton("stage-select/dirt.png", "stage-select/floor.png",
         halfW - 650, halfH * 3 / 2 + 50, 400, 100);
-    prevButton->SetOnClickCallback(std::bind(&ScoreboardScene::PrevPageOnClick, this, 0));
     AddNewControlObject(prevButton);
     AddNewObject(new Engine::Label("Prev", "pirulen.ttf", 48,
         halfW - 450, halfH * 3 / 2 + 100, 0, 0, 0, 255, 0.5, 0.5));
@@ -64,7 +67,6 @@ void ScoreboardScene::ShowPage(unsigned int page) {
     // Next button
     auto* nextButton = new Engine::ImageButton("stage-select/dirt.png", "stage-select/floor.png",
         halfW + 250, halfH * 3 / 2 + 50, 400, 100);
-    nextButton->SetOnClickCallback(std::bind(&ScoreboardScene::NextPageOnClick, this, 0));
     AddNewControlObject(nextButton);
     AddNewObject(new Engine::Label("Next", "pirulen.ttf", 48,
         halfW + 450, halfH * 3 / 2 + 100, 0, 0, 0, 255, 0.5, 0.5));
@@ -72,10 +74,23 @@ void ScoreboardScene::ShowPage(unsigned int page) {
     // Back button
     auto* backButton = new Engine::ImageButton("stage-select/dirt.png", "stage-select/floor.png",
         halfW - 200, halfH * 7 / 4 - 50, 400, 100);
-    backButton->SetOnClickCallback(std::bind(&ScoreboardScene::BackOnClick, this, 1));
     AddNewControlObject(backButton);
     AddNewObject(new Engine::Label("Back", "pirulen.ttf", 48,
         halfW, halfH * 7 / 4, 0, 0, 0, 255, 0.5, 0.5));
+
+    if (!ChangingPage){
+        prevButton->SetOnClickCallback(std::bind(&ScoreboardScene::PrevPageOnClick, this, 0));
+        nextButton->SetOnClickCallback(std::bind(&ScoreboardScene::NextPageOnClick, this, 0));
+        backButton->SetOnClickCallback(std::bind(&ScoreboardScene::BackOnClick, this, 1));
+
+        ChangingPage = true;
+    }
+
+    // 顯示頁數
+
+    std::string pageText = "Page " + std::to_string(currentPage + 1);
+    AddNewObject(new Engine::Label(pageText, "pirulen.ttf", 48,120, 70, 0, 255, 0, 255, 0.5, 1.0));
+
 
     int start = page * entriesPerPage;
     int end = std::min(start + entriesPerPage, (unsigned int)entries.size());
@@ -87,20 +102,25 @@ void ScoreboardScene::ShowPage(unsigned int page) {
         if (!e.datetime.empty()) {
             text += " (" + e.datetime + ")";
         }
-        AddNewObject(new Engine::Label(text, "pirulen.ttf", 36,
-            halfW, y, 0, 255, 0, 255, 0.5, 0));
+        if (e.score == -87878787) AddNewObject(new Engine::Label(text, "pirulen.ttf", 36,halfW, y, 255, 0, 0, 255, 0.5, 0));
+        else AddNewObject(new Engine::Label(text, "pirulen.ttf", 36,halfW, y, 0, 255, 0, 255, 0.5, 0));
         y += 50;
     }
 }
 
 void ScoreboardScene::PrevPageOnClick(int) {
+    unsigned int maxPage = (entries.size() - 1) / entriesPerPage;
     if (currentPage > 0) ShowPage(currentPage - 1);
+    else if (currentPage == 0) ShowPage(maxPage);
 }
 
 void ScoreboardScene::NextPageOnClick(int) {
     unsigned int maxPage = (entries.size() - 1) / entriesPerPage;
+    std::cout << "maxPage : " << maxPage << std::endl;
+    std::cout << "current page : " << currentPage << std::endl;
     if (currentPage < maxPage) ShowPage(currentPage + 1);
-}
+    else if (currentPage == maxPage) ShowPage(0);
+};
 
 void ScoreboardScene::BackOnClick(int) {
     Engine::GameEngine::GetInstance().ChangeScene("start");

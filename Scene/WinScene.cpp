@@ -4,6 +4,7 @@
 #include <chrono>
 #include <iomanip>
 #include <ctime>
+#include <iostream>
 
 #include "Engine/AudioHelper.hpp"
 #include "Engine/GameEngine.hpp"
