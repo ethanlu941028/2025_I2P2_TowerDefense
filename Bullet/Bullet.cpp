@@ -41,6 +41,6 @@ void Bullet::Update(float deltaTime) {
 
     if (damage == 5) {
         if (dynamic_cast<PlayScene*>(Engine::GameEngine::GetInstance().GetScene("play"))->GetMoney() > 150) speed = 1300;
-        else speed = 500;
+        else speed = 1700;
     }
 }
